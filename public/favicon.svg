@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 210">
+  <title>erdos</title>
+  <style>
+    .a { color: #1C2421; }
+    .b { color: #D68923; }
+    @media (prefers-color-scheme: dark) { .a { color: #FAF9F6; } }
+  </style>
+  <g fill="none" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path class="a" stroke="currentColor" d="M 42,126 C 58,63 82,14 111,20 C 139,26 151,91 177,139 C 187,162 205,154 219,136.1"/>
+    <path class="b" stroke="currentColor" d="M 57,145 C 76,181 98,177 120,143 C 145,103 164,47 190,60 C 211,70 226,111 241,126"/>
+  </g>
+  <circle class="a" fill="currentColor" cx="42" cy="126" r="15"/>
+  <circle class="b" fill="currentColor" cx="241" cy="126" r="15"/>
+</svg>

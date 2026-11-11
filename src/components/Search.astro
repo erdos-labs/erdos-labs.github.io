@@ -1,0 +1,35 @@
+---
+// Starlight's search, opened with "/" instead of Ctrl/Cmd+K (which browsers use for their own search).
+import Default from '@astrojs/starlight/components/Search.astro';
+---
+<Default {...Astro.props}><slot /></Default>
+
+<script>
+  // Capture phase, so this runs before Starlight's own Ctrl/Cmd+K handler and leaves that key to the browser.
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.stopImmediatePropagation(); return; }
+    if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target as HTMLElement | null;
+    if (t && (t.closest('input, textarea, select, [contenteditable="true"]') || t.isContentEditable)) return;
+    const open = document.querySelector<HTMLButtonElement>('button[data-open-modal]');
+    if (!open) return;
+    e.preventDefault();
+    open.click();
+    // The search box is created lazily; focus it as soon as it exists so you can type straight away.
+    const started = performance.now();
+    const focus = () => {
+      const input = document.querySelector<HTMLInputElement>('dialog[open] input');
+      if (input) input.focus();
+      else if (performance.now() - started < 2000) requestAnimationFrame(focus);
+    };
+    focus();
+  }, true);
+
+  // Show "/" as the hint instead of "Ctrl K". The header is replaced on client-side navigation, so redo it per page.
+  const setHint = () => {
+    const hint = document.querySelector('button[data-open-modal] > kbd');
+    if (hint) hint.innerHTML = '<kbd>/</kbd>';
+  };
+  setHint();
+  document.addEventListener('astro:page-load', setHint);
+</script>

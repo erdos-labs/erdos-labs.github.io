@@ -1,0 +1,21 @@
+{
+  "name": "erdos-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.12",
+    "@astrojs/starlight": "0.42.10",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@iconify-json/lucide": "1.2.153",
+    "@iconify-json/simple-icons": "1.2.102",
+    "astro": "7.4.10",
+    "astro-icon": "1.2.0",
+    "typescript": "6.0.3"
+  }
+}

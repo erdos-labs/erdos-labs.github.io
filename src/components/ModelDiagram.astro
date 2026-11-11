@@ -1,0 +1,55 @@
+---
+// A static picture of the Data Vault sample that ships in the erdos repo (examples/samples/data-vault).
+// Drawn as SVG with fixed geometry so edges meet the rows they connect, and it follows the theme.
+// Replace with a recorded demo later.
+const W = 200, HEAD = 24, ROW = 20;
+type Col = [string, string, ('pk' | 'fk' | '')?];
+const tables: { id: string; x: number; y: number; kind: 'hub' | 'link' | 'sat'; cols: Col[] }[] = [
+  { id: 'hub_customer', x: 24, y: 24, kind: 'hub', cols: [['hk_customer', 'binary', 'pk'], ['customer_bk', 'varchar'], ['load_dts', 'timestamp_ntz'], ['record_source', 'varchar']] },
+  { id: 'hub_order', x: 24, y: 196, kind: 'hub', cols: [['hk_order', 'binary', 'pk'], ['order_bk', 'varchar'], ['load_dts', 'timestamp_ntz']] },
+  { id: 'lnk_customer_order', x: 300, y: 110, kind: 'link', cols: [['hk_customer_order', 'binary', 'pk'], ['hk_customer', 'binary', 'fk'], ['hk_order', 'binary', 'fk']] },
+  { id: 'sat_customer_details', x: 576, y: 24, kind: 'sat', cols: [['hk_customer', 'binary', 'fk'], ['hash_diff', 'binary'], ['name', 'varchar'], ['email', 'varchar']] },
+];
+const rowY = (t: (typeof tables)[number], i: number) => t.y + HEAD + ROW * i + ROW / 2;
+const [hubC, hubO, link, sat] = tables;
+const edges = [
+  `M ${hubC.x + W} ${rowY(hubC, 0)} C ${hubC.x + W + 50} ${rowY(hubC, 0)}, ${link.x - 50} ${rowY(link, 1)}, ${link.x} ${rowY(link, 1)}`,
+  `M ${hubO.x + W} ${rowY(hubO, 0)} C ${hubO.x + W + 50} ${rowY(hubO, 0)}, ${link.x - 50} ${rowY(link, 2)}, ${link.x} ${rowY(link, 2)}`,
+  `M ${hubC.x + W} ${rowY(hubC, 0)} C ${hubC.x + W + 140} ${hubC.y - 14}, ${sat.x - 140} ${sat.y - 14}, ${sat.x} ${rowY(sat, 0)}`,
+];
+---
+<figure class="model">
+  <svg viewBox="0 0 800 310" role="img" aria-label="Diagram of the Data Vault sample: two hubs, a link and a satellite">
+    {edges.map((d) => <path class="edge" d={d} />)}
+    {tables.map((t) => (
+      <g class={`node ${t.kind}`}>
+        <rect class="box" x={t.x} y={t.y} width={W} height={HEAD + ROW * t.cols.length} rx="3" />
+        <path class="head" d={`M ${t.x} ${t.y + HEAD} V ${t.y + 3} a 3 3 0 0 1 3 -3 H ${t.x + W - 3} a 3 3 0 0 1 3 3 V ${t.y + HEAD} Z`} />
+        <text class="title" x={t.x + 10} y={t.y + 16}>{t.id}</text>
+        {t.cols.map(([n, ty, k], i) => (
+          <g>
+            <line class="rule" x1={t.x} x2={t.x + W} y1={t.y + HEAD + ROW * i} y2={t.y + HEAD + ROW * i} />
+            <text class={`name ${k ?? ''}`} x={t.x + 10} y={t.y + HEAD + ROW * i + 14}>{k === 'pk' ? '◆ ' : k === 'fk' ? '→ ' : ''}{n}</text>
+            <text class="ty" x={t.x + W - 10} y={t.y + HEAD + ROW * i + 14} text-anchor="end">{ty}</text>
+          </g>
+        ))}
+      </g>
+    ))}
+  </svg>
+</figure>
+<style>
+  .model { margin: 0; background-color: var(--bg); background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px); background-size: 18px 18px; }
+  svg { display: block; width: 100%; height: auto; font-family: var(--mono); font-size: 11.5px; }
+  .edge { fill: none; stroke: var(--edge); stroke-width: 1.5; }
+  .box { fill: var(--surface-2); stroke: var(--line-strong); }
+  .rule { stroke: var(--line); }
+  .head { fill: var(--table); }
+  .link .head { fill: #7a4b9e; }
+  .sat .head { fill: var(--accent); }
+  .title { fill: #fff; font-weight: 600; }
+  .sat .title { fill: #231b0b; }
+  .name { fill: var(--ink); }
+  .name.pk { fill: var(--accent-ink); }
+  .name.fk { fill: var(--table); }
+  .ty { fill: var(--ink-3); }
+</style>

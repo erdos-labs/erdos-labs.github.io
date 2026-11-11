@@ -1,0 +1,263 @@
+---
+import '@fontsource-variable/manrope';
+import '@fontsource/ibm-plex-mono/400.css';
+import '../styles/tokens.css';
+import { Icon } from 'astro-icon/components';
+import Logo from '../components/Logo.astro';
+import ModelDiagram from '../components/ModelDiagram.astro';
+import GitHubStats from '../components/GitHubStats.astro';
+import manrope from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import plexMono from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
+
+const GH = 'https://github.com/erdos-labs/erdos';
+const dbml = `Table raw_vault.lnk_customer_order {
+  hk_customer_order binary [pk]
+  hk_customer binary [not null, ref: > raw_vault.hub_customer.hk_customer]
+  hk_order binary [not null, ref: > raw_vault.hub_order.hk_order]
+  ~dv_meta
+}`;
+const rules = `extends: [naming, data-vault]
+rules:
+  table-docs: { severity: error, scope: "*/marts/**" }
+  marts-pk:   { kind: required, target: table, fields: [pk] }`;
+const steps = [
+  { i: 'lucide:pencil-ruler', t: 'Model', d: 'Create tables on a canvas, edit DBML, or import a dbt manifest.' },
+  { i: 'lucide:git-pull-request', t: 'Review', d: 'Branch, diff and validate the model against declared standards.' },
+  { i: 'lucide:share-2', t: 'Publish', d: 'Serve any diagram read-only, or embed it in documentation.' },
+];
+type Mark = 'yes' | 'no' | 'varies';
+const compare: { feature: string; marks: [Mark, Mark] }[] = [
+  { feature: 'Runs on your own infrastructure', marks: ['no', 'yes'] },
+  { feature: 'Open source, no per-seat licence', marks: ['no', 'yes'] },
+  { feature: 'Model stored as plain text files you own', marks: ['no', 'yes'] },
+  { feature: 'Open file format (DBML)', marks: ['varies', 'yes'] },
+  { feature: 'Branches, diffs and review in git', marks: ['varies', 'yes'] },
+];
+const markIcon = { yes: 'lucide:check', no: 'lucide:x', varies: 'lucide:minus' } as const;
+const markText = { yes: 'Yes', no: 'No', varies: 'Varies by product' } as const;
+const pillars = [
+  { i: 'lucide:git-branch', t: 'Models are files in git', d: 'One DBML file per table, in a folder tree of database, schema and group. Every change is a diff.' },
+  { i: 'lucide:shield-check', t: 'Standards checks', d: 'Naming, documentation, key and entity-template rules are declared in YAML, displayed read-only in the app and validated in CI.' },
+  { i: 'lucide:arrow-left-right', t: 'dbt interoperability', d: 'Imports manifest.json, stores dbt properties beside each table, and exports dbt YAML.' },
+  { i: 'lucide:globe', t: 'Published diagrams', d: 'A diagram listed in published.yaml is served read-only without login. Disabled until an operator enables it.' },
+  { i: 'lucide:package', t: 'Single binary', d: 'A Go server with no runtime dependencies and the web app embedded. Storage and sign-in are pluggable.' },
+  { i: 'lucide:palette', t: 'Themeable', d: 'Colours are CSS variables. A theme.css file overrides them without rebuilding.' },
+];
+---
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>erdos: entity relationship diagrams that live in git</title>
+    <meta name="description" content="A self-hosted, open-source entity relationship diagram (ERD) tool for data engineers, modellers and analysts. Models are DBML files in git, validated against declared standards, and it integrates with dbt projects." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" as="font" type="font/woff2" href={manrope} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={plexMono} crossorigin />
+    <script is:inline>
+      try {
+        var t = localStorage.getItem('starlight-theme');
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <header class="bar">
+      <a class="brand" href="/"><Logo size={34} /><span>erdos</span></a>
+      <nav>
+        <a href="/docs/">Docs</a>
+        <GitHubStats />
+        <button id="theme" type="button" aria-label="Switch theme">◐</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Entity relationship diagrams that live in git.</h1>
+        <p class="etym"><em><strong>ERD-os</strong>: Entity Relationship Diagram, open source.</em></p>
+        <p class="lead">A self-hosted ERD tool for data engineers, modellers and analysts. Models are stored as DBML files in a git repository you control. Changes are versioned and reviewed through branches, models are validated against declared standards, and it integrates with dbt projects.</p>
+        <div class="cta">
+          <a class="btn primary" href="/docs/quick-start/"><Icon name="lucide:play" size={16} /> Get started</a>
+          <a class="btn" href="/docs/"><Icon name="lucide:book-open" size={16} /> Read the docs</a>
+        </div>
+        <pre class="cmd" aria-label="Run it locally"><code>git clone {GH}.git && cd erdos
+nix run .#dev</code></pre>
+      </section>
+
+      <section class="frame" aria-label="The Data Vault sample, drawn by erdos">
+        <div class="frame-bar"><span>data-vault sample</span><span>4 tables · DBML</span></div>
+        <ModelDiagram />
+      </section>
+
+      <ol class="steps" aria-label="How it works">
+        {steps.map((st) => (
+          <li><Icon name={st.i} size={22} /><div><h3>{st.t}</h3><p>{st.d}</p></div></li>
+        ))}
+      </ol>
+
+      <section class="split">
+        <div>
+          <h2>Plain files, line diffs</h2>
+          <p>Each table is one <code>.dbml</code> file. A relationship is declared on the column that holds the foreign key, so a pull request shows which part of the model changed.</p>
+        </div>
+        <pre><code>{dbml}</code></pre>
+      </section>
+
+      <section class="split reverse">
+        <div>
+          <h2>Standards as code</h2>
+          <p>Rules and entity types are declared in <code>governance.yaml</code> or in a shared <code>standards/</code> folder. The app displays them read-only; a change to a standard is a reviewed commit. The same engine runs in the editor and in CI.</p>
+        </div>
+        <pre><code>{rules}</code></pre>
+      </section>
+
+      <section class="compare" aria-labelledby="compare-h">
+        <h2 id="compare-h">How erdos differs</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col"><span class="sr-only">Capability</span></th><th scope="col">Hosted SaaS tools</th><th scope="col" class="us">erdos</th></tr>
+            </thead>
+            <tbody>
+              {compare.map((r) => (
+                <tr>
+                  <th scope="row">{r.feature}</th>
+                  {r.marks.map((m, i) => (
+                    <td class={`${m}${i === 1 ? ' us' : ''}`}><Icon name={markIcon[m]} size={18} /><span class="sr-only">{markText[m]}</span></td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Typical capabilities of hosted SaaS diagramming tools; individual products differ. A dash means it varies by product.</p>
+      </section>
+
+      <section class="pillars" aria-label="What it does">
+        {pillars.map((p) => (
+          <article><Icon name={p.i} size={22} /><h3>{p.t}</h3><p>{p.d}</p></article>
+        ))}
+      </section>
+
+      <section class="status">
+        <h2>Status</h2>
+        <p>erdos is under active development and the interface may change. The local store is implemented; a GitHub store and single sign-on are planned. Licensed under Apache-2.0.</p>
+        <div class="cta">
+          <a class="btn primary" href={GH}><Icon name="simple-icons:github" size={16} /> Star on GitHub</a>
+          <a class="btn" href={`${GH}/issues`}><Icon name="lucide:message-square" size={16} /> Open an issue</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="foot-grid">
+        <div>
+          <span class="brand"><Logo size={28} /><span>erdos</span></span>
+          <p class="muted">An open-source entity relationship diagram tool that lives in git.</p>
+        </div>
+        <nav aria-label="Documentation">
+          <h4>Documentation</h4>
+          <a href="/docs/quick-start/">Quick start</a>
+          <a href="/docs/guides/governance/">Standards</a>
+            <a href="/docs/reference/configuration/">Configuration</a>
+          <a href="/docs/project/roadmap/">Roadmap</a>
+        </nav>
+        <nav aria-label="Project">
+          <h4>Project</h4>
+          <a href={GH}><Icon name="simple-icons:github" size={14} /> GitHub</a>
+          <a href={`${GH}/issues`}>Issues</a>
+          <a href={`${GH}/blob/main/LICENSE`}>Apache-2.0 license</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script is:inline>
+      document.getElementById('theme').addEventListener('click', function () {
+        var next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('starlight-theme', next); } catch (e) {}
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scrollbar-gutter: stable; }
+  body { margin: 0; background: var(--bg); color: var(--ink-2); font: 16px/1.6 var(--sans); }
+  a { color: inherit; }
+  code, pre { font-family: var(--mono); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+<style>
+  .bar { display: flex; justify-content: space-between; align-items: center; padding: 14px max(16px, calc((100% - 1008px) / 2)); border-bottom: 1px solid var(--line); background: var(--bar-bg); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+  nav { display: flex; align-items: center; gap: 22px; font-size: 15px; }
+  nav a { text-decoration: none; color: var(--ink-2); }
+  nav a:hover { color: var(--ink); }
+  #theme { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 6px; width: 36px; height: 36px; cursor: pointer; font-size: 16px; }
+  main { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  .hero { padding: 88px 0 48px; max-width: 760px; }
+  h1 { margin: 0; color: var(--ink); font-size: clamp(34px, 5.4vw, 56px); line-height: 1.08; letter-spacing: -0.025em; font-weight: 700; }
+  .lead { margin: 18px 0 0; font-size: 19px; max-width: 620px; }
+  .etym { margin: 14px 0 0; color: var(--ink-3); font-size: 15px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border: 1px solid var(--line-strong); border-radius: 6px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 15px; }
+  .btn:hover { background: var(--surface); }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .btn.primary:hover { opacity: 0.9; background: var(--primary); }
+  .cmd { margin: 28px 0 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); font-size: 13.5px; overflow-x: auto; }
+  .frame { margin: 24px 0 72px; border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .frame-bar { display: flex; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line); font: 12px var(--mono); color: var(--ink-3); }
+  .split { display: grid; grid-template-columns: 1fr 1.1fr; gap: 40px; align-items: center; padding: 28px 0; }
+  .split.reverse { grid-template-columns: 1.1fr 1fr; }
+  .split.reverse > :first-child { order: 2; }
+  .split.reverse > pre { order: 1; }
+  h2 { margin: 0 0 10px; color: var(--ink); font-size: 28px; letter-spacing: -0.015em; line-height: 1.2; }
+  .split pre { margin: 0; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-size: 12.5px; line-height: 1.6; color: var(--ink); overflow-x: auto; }
+  p code { font-size: 0.9em; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; color: var(--ink); }
+  .compare { margin: 8px 0; }
+  .table-wrap { position: relative; margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { width: 100%; min-width: 460px; table-layout: fixed; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 12px 16px; border-bottom: 1px solid var(--line); text-align: center; }
+  tbody tr:last-child > * { border-bottom: 0; }
+  thead th { color: var(--ink); font-size: 14px; font-weight: 600; background: var(--bar-bg); }
+  tbody th { text-align: left; font-weight: 500; color: var(--ink); }
+  thead th:first-child { text-align: left; }
+  thead th.us { background: color-mix(in srgb, var(--table) 12%, var(--bar-bg)); }
+  td.us { background: color-mix(in srgb, var(--table) 7%, var(--surface)); }
+  th:first-child { width: 52%; }
+  td :global(svg) { vertical-align: middle; }
+  td.yes { color: var(--table); }
+  td.no, td.varies { color: var(--ink-3); }
+  .note { margin: 10px 0 0; font-size: 13px; color: var(--ink-3); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 56px 0; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .pillars article { background: var(--surface); padding: 22px; }
+  .pillars article :global(svg), .steps :global(svg) { color: var(--accent-ink); margin-bottom: 10px; }
+  .steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin: 0 0 56px; padding: 0; }
+  .steps li { display: flex; gap: 14px; align-items: flex-start; }
+  .steps :global(svg) { flex: none; margin: 3px 0 0; }
+  .steps h3 { margin: 0 0 4px; }
+  .steps p { margin: 0; font-size: 15px; }
+  h3 { margin: 0 0 8px; color: var(--ink); font-size: 17px; }
+  .pillars p { margin: 0; font-size: 15px; }
+  .status { padding: 24px 0 88px; max-width: 640px; }
+  .status p { margin: 0; }
+  footer { border-top: 1px solid var(--line); background: var(--bar-bg); padding: 40px max(16px, calc((100% - 1008px) / 2)) 32px; font-size: 14px; }
+  .foot-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 32px; }
+  .foot-grid p { margin: 10px 0 0; max-width: 320px; }
+  footer nav { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  footer h4 { margin: 0 0 4px; color: var(--ink); font-size: 14px; }
+  footer a { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--ink-2); }
+  footer a:hover { color: var(--ink); text-decoration: underline; }
+  .muted { color: var(--ink-3); }
+  @media (max-width: 800px) {
+    .split, .split.reverse { grid-template-columns: 1fr; gap: 20px; }
+    .split.reverse > :first-child, .split.reverse > pre { order: 0; }
+    .pillars, .steps, .foot-grid { grid-template-columns: 1fr; }
+    .hero { padding-top: 56px; }
+    nav { gap: 14px; }
+  }
+</style>

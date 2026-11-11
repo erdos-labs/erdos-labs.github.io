@@ -1,0 +1,26 @@
+/* Keep the page from shifting sideways when a scrollbar appears or disappears between pages. */
+html { scrollbar-gutter: stable; }
+
+/* Map the brand tokens onto Starlight's variables. */
+:root, :root[data-theme='dark'] {
+  --sl-font: var(--sans); --sl-font-mono: var(--mono);
+  --sl-color-white: var(--ink); --sl-color-gray-1: var(--ink); --sl-color-gray-2: var(--ink-2);
+  --sl-color-gray-3: var(--ink-3); --sl-color-gray-4: var(--edge); --sl-color-gray-5: var(--line-strong);
+  --sl-color-gray-6: var(--surface); --sl-color-gray-7: var(--bar-bg); --sl-color-black: var(--bg);
+  --sl-color-accent-low: var(--accent-soft); --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-ink);
+  --sl-color-bg: var(--bg); --sl-color-bg-nav: var(--bar-bg); --sl-color-bg-sidebar: var(--bar-bg);
+  --sl-color-hairline: var(--line); --sl-color-text: var(--ink-2); --sl-color-text-accent: var(--accent-ink);
+}
+:root[data-theme='light'] {
+  --sl-color-white: var(--ink); --sl-color-gray-1: var(--ink); --sl-color-gray-2: var(--ink-2);
+  --sl-color-gray-3: var(--ink-3); --sl-color-gray-4: var(--edge); --sl-color-gray-5: var(--line-strong);
+  --sl-color-gray-6: var(--line); --sl-color-gray-7: var(--bar-bg); --sl-color-black: var(--surface);
+  --sl-color-accent-low: var(--accent-soft); --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-ink);
+  --sl-color-bg: var(--bg); --sl-color-bg-nav: var(--bar-bg); --sl-color-bg-sidebar: var(--bar-bg);
+  --sl-color-hairline: var(--line); --sl-color-text: var(--ink-2); --sl-color-text-accent: var(--accent-ink);
+}
+:root, :root[data-theme='dark'] { --sl-color-text-invert: #231b0b; }
+:root[data-theme='light'] { --sl-color-text-invert: #ffffff; }
+.site-title { color: var(--ink); text-transform: lowercase; font-weight: 700; letter-spacing: -0.01em; }

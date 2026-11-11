@@ -1,0 +1,51 @@
+---
+import { Icon } from 'astro-icon/components';
+const { repo = 'erdos-labs/erdos' } = Astro.props;
+---
+<!-- Link to the repository with live stars and latest release. Works without JavaScript or when the
+     GitHub API is unreachable (private repo, no release yet, rate limit): it just stays a plain link. -->
+<github-stats data-repo={repo}>
+  <a class="gh" href={`https://github.com/${repo}`} aria-label={`${repo} on GitHub`}>
+    <Icon name="simple-icons:github" size={18} />
+    <span class="gh-name">GitHub</span>
+    <span class="gh-stat" data-stars hidden><Icon name="lucide:star" size={13} /><span></span></span>
+    <span class="gh-stat" data-release hidden><Icon name="lucide:tag" size={13} /><span></span></span>
+  </a>
+</github-stats>
+
+<script>
+  class GitHubStats extends HTMLElement {
+    async connectedCallback() {
+      const repo = this.dataset.repo!;
+      const key = `gh:${repo}`;
+      let data: { stars?: number; release?: string; at?: number } = {};
+      try { data = JSON.parse(sessionStorage.getItem(key) ?? '{}'); } catch { /* private mode */ }
+      if (!data.at || Date.now() - data.at > 10 * 60_000) {
+        data = { at: Date.now() };
+        try {
+          const r = await fetch(`https://api.github.com/repos/${repo}`);
+          if (r.ok) data.stars = (await r.json()).stargazers_count;
+          const l = await fetch(`https://api.github.com/repos/${repo}/releases/latest`);
+          if (l.ok) data.release = (await l.json()).tag_name;
+        } catch { /* offline: keep the plain link */ }
+        try { sessionStorage.setItem(key, JSON.stringify(data)); } catch { /* ignore */ }
+      }
+      const show = (sel: string, v?: string | number) => {
+        const el = this.querySelector<HTMLElement>(sel);
+        if (el && v !== undefined) { el.hidden = false; el.querySelector('span')!.textContent = String(v); }
+      };
+      show('[data-stars]', data.stars);
+      show('[data-release]', data.release);
+    }
+  }
+  if (!customElements.get('github-stats')) customElements.define('github-stats', GitHubStats);
+</script>
+
+<style>
+  .gh { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: 6px;
+    background: var(--surface); color: var(--ink); text-decoration: none; font: 600 14px var(--sans); white-space: nowrap; }
+  .gh:hover { border-color: var(--accent); }
+  .gh-stat { display: inline-flex; align-items: center; gap: 4px; padding-left: 10px; border-left: 1px solid var(--line-strong); font: 500 13px var(--mono); color: var(--ink-2); }
+  .gh-stat[hidden] { display: none; }
+  @media (max-width: 560px) { .gh-name, .gh-stat[data-release] { display: none; } }
+</style>

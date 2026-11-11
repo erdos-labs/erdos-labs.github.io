@@ -1,0 +1,13 @@
+---
+// Extends Starlight's <head>: preloads the two font files used above the fold so text does not
+// reflow when they arrive, and turns on client-side navigation so moving between docs pages
+// swaps the content instead of reloading the document (fonts and header stay put).
+import Default from '@astrojs/starlight/components/Head.astro';
+import { ClientRouter } from 'astro:transitions';
+import manrope from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import plexMono from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url';
+---
+<Default {...Astro.props}><slot /></Default>
+<link rel="preload" as="font" type="font/woff2" href={manrope} crossorigin />
+<link rel="preload" as="font" type="font/woff2" href={plexMono} crossorigin />
+<ClientRouter />

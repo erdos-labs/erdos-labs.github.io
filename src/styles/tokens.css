@@ -1,0 +1,27 @@
+/* Brand tokens, shared by the landing page and the docs. Names and values follow the app's
+   web/src/theme.css (erdos repo), so the site and the product stay visually aligned. */
+:root, :root[data-theme='dark'] {
+  --bg: #121a17; --bar-bg: #0c1210; --surface: #1a2420; --surface-2: #232f2a;
+  --line: #2b3832; --line-strong: #3d4d45;
+  --ink: #f3f1e9; --ink-2: #ccd0c3; --ink-3: #98a196;
+  --edge: #6d7b73; --grid-dot: #25322c;
+  --primary: #ece6d6; --on-primary: #14201b;
+  --logo-a: #f3f1e9; --logo-b: #e19f3e;
+  --accent: #e19f3e; --accent-ink: #e8a94f; --accent-soft: rgba(225, 159, 62, 0.17);
+  --table: #4ca695; --view: #b57edc; --source: #87a96b;
+  --syn-keyword: #b57edc; --syn-string: #9fc07f; --syn-attr: #e19f3e;
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  --bg: #f6f4ee; --bar-bg: #ece8dd; --surface: #ffffff; --surface-2: #ffffff;
+  --line: #e8e3d7; --line-strong: #d3ccba;
+  --ink: #1e2521; --ink-2: #4a4838; --ink-3: #736a50;
+  --edge: #a39a80; --grid-dot: #d7d2c3;
+  --primary: #1f3d33; --on-primary: #faf9f6;
+  --logo-a: #1e2521; --logo-b: #d68923;
+  --accent: #d68923; --accent-ink: #8c4b21; --accent-soft: rgba(214, 137, 35, 0.17);
+  --table: #1e7a6b; --view: #7e22ce; --source: #4d7c0f;
+  --syn-keyword: #7e22ce; --syn-string: #4d7c0f; --syn-attr: #8c4b21;
+  color-scheme: light;
+}
+:root { --sans: 'Manrope Variable', system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace; }
